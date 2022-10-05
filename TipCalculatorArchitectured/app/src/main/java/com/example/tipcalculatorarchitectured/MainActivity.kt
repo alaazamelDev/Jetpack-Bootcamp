@@ -3,6 +3,7 @@ package com.example.tipcalculatorarchitectured
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,11 +29,13 @@ class MainActivity : ComponentActivity() {
             MainApp {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .padding(all = 16.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TopHeader()
+                    MainContent()
                 }
             }
         }
@@ -44,20 +47,11 @@ fun MainApp(content: @Composable () -> Unit) {
     TipCalculatorArchitecturedTheme {
         Surface(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp),
+                .fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
             content()
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MainApp {
-        TopHeader()
     }
 }
 
@@ -85,6 +79,34 @@ fun TopHeader(totalPerPerson: Double = 134.0) {
                 style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.ExtraBold
             )
+        }
+    }
+}
+
+
+@Composable
+fun MainContent() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .padding(top = 16.dp)
+            .border(1.dp, Color.LightGray, RoundedCornerShape(CornerSize(12.dp)))
+            .clip(RoundedCornerShape(CornerSize(12.dp)))
+            .padding(all = 8.dp),
+    ) {
+
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    MainApp {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopHeader()
+            Spacer(modifier = Modifier.height(16.dp))
+            MainContent()
         }
     }
 }
