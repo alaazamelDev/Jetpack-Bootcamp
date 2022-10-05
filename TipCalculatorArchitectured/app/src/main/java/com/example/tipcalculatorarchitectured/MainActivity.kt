@@ -1,6 +1,7 @@
 package com.example.tipcalculatorarchitectured
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
@@ -12,7 +13,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tipcalculatorarchitectured.components.InputField
 import com.example.tipcalculatorarchitectured.ui.theme.TipCalculatorArchitecturedTheme
+import com.example.tipcalculatorarchitectured.widgets.RoundedIconButton
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,11 +93,32 @@ fun TopHeader(totalPerPerson: Double = 134.0) {
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainContent() {
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        BillForm() {
+            Log.d("BILL_FORM", "MainContent: $it")
+        }
+
+    }
+
+}
+
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun BillForm(onValueChanged: (String) -> Unit = {}) {
+
     val totalBillValue = remember {
         mutableStateOf("")
+    }
+
+    // Split value
+    val splitValue = remember {
+        mutableStateOf(1)
     }
 
     // to find out if the
@@ -101,7 +128,6 @@ fun MainContent() {
 
     // used to control the keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
-
 
     Surface(
         modifier = Modifier
@@ -125,10 +151,38 @@ fun MainContent() {
                 onAction = KeyboardActions {
                     if (!validFieldState) return@KeyboardActions
 
+                    // invoke the callback to execute based function
+                    onValueChanged(totalBillValue.value.trim())
+
                     // Dismiss the keyboard
                     keyboardController?.hide();
                 },
             )
+            if (validFieldState) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(text = "Split")
+                    Spacer(modifier = Modifier.width(120.dp))
+                    RoundedIconButton(imageVector = Icons.Rounded.Remove, onClick = {
+                        if (splitValue.value > 1) splitValue.value--
+                    })
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 9.dp)
+                            .align(Alignment.CenterVertically), text = "${splitValue.value}"
+                    )
+                    RoundedIconButton(imageVector = Icons.Rounded.Add, onClick = {
+                        splitValue.value++
+                    })
+                }
+
+
+            }
         }
     }
 }
