@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.example.tipcalculatorarchitectured.components.InputField
 import com.example.tipcalculatorarchitectured.ui.theme.TipCalculatorArchitecturedTheme
 import com.example.tipcalculatorarchitectured.utils.calculateTipAmount
+import com.example.tipcalculatorarchitectured.utils.calculateTotalPerPerson
 import com.example.tipcalculatorarchitectured.widgets.RoundedIconButton
 
 class MainActivity : ComponentActivity() {
@@ -44,12 +45,10 @@ class MainActivity : ComponentActivity() {
             MainApp {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(all = 16.dp),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TopHeader()
                     MainContent()
                 }
             }
@@ -97,12 +96,18 @@ fun TopHeader(totalPerPerson: Double = 134.0) {
 
 @Composable
 fun MainContent() {
+    val totalPerPerson = remember {
+        mutableStateOf(0.00)
+    }
     Column(
+        modifier = Modifier.padding(all = 16.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start,
     ) {
+        TopHeader(totalPerPerson = totalPerPerson.value)
         BillForm() {
-            Log.d("BILL_FORM", "MainContent: $it")
+            Log.d("total", "MainContent: $it")
+            totalPerPerson.value = it.toDouble()
         }
 
     }
@@ -113,6 +118,10 @@ fun MainContent() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BillForm(onValueChanged: (String) -> Unit = {}) {
+
+    val totalPerPerson = remember {
+        mutableStateOf<Double>(0.0)
+    }
 
     val totalBillValue = remember {
         mutableStateOf("")
@@ -158,7 +167,7 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                     if (!validFieldState) return@KeyboardActions
 
                     // invoke the callback to execute based function
-                    onValueChanged(totalBillValue.value.trim())
+                    onValueChanged(totalPerPerson.value.toString())
 
                     // Dismiss the keyboard
                     keyboardController?.hide();
@@ -177,7 +186,16 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                     Text(text = "Split")
                     Spacer(modifier = Modifier.width(180.dp))
                     RoundedIconButton(imageVector = Icons.Rounded.Remove, onClick = {
-                        if (splitValue.value > 1) splitValue.value--
+                        if (splitValue.value > 1) {
+                            splitValue.value--
+                            totalPerPerson.value =
+                                calculateTotalPerPerson(
+                                    totalBill = totalBillValue.value.toDouble(),
+                                    splitBy = splitValue.value,
+                                    tipPercentage = sliderIntValue
+                                )
+                            onValueChanged(totalPerPerson.value.toString())
+                        }
                     })
                     Text(
                         modifier = Modifier
@@ -186,6 +204,13 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                     )
                     RoundedIconButton(imageVector = Icons.Rounded.Add, onClick = {
                         splitValue.value++
+                        totalPerPerson.value =
+                            calculateTotalPerPerson(
+                                totalBill = totalBillValue.value.toDouble(),
+                                splitBy = splitValue.value,
+                                tipPercentage = sliderIntValue
+                            )
+                        onValueChanged(totalPerPerson.value.toString())
                     })
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -223,7 +248,16 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                 Slider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     value = sliderValueState.value,
-                    onValueChange = { sliderValueState.value = it },
+                    onValueChange = {
+                        sliderValueState.value = it
+                        totalPerPerson.value =
+                            calculateTotalPerPerson(
+                                totalBill = totalBillValue.value.toDouble(),
+                                splitBy = splitValue.value,
+                                tipPercentage = sliderIntValue
+                            )
+                        onValueChanged(totalPerPerson.value.toString())
+                    },
                     valueRange = 0f..100f,
                     steps = 5,
                 )
