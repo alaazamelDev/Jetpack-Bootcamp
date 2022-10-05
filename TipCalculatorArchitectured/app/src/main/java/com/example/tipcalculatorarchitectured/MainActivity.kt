@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tipcalculatorarchitectured.components.InputField
 import com.example.tipcalculatorarchitectured.ui.theme.TipCalculatorArchitecturedTheme
+import com.example.tipcalculatorarchitectured.utils.calculateTipAmount
 import com.example.tipcalculatorarchitectured.widgets.RoundedIconButton
 
 class MainActivity : ComponentActivity() {
@@ -126,13 +128,17 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
         totalBillValue.value.trim().isNotEmpty()
     }
 
+    // Slider current value
+    val sliderValueState = remember {
+        mutableStateOf(0f)
+    }
+
     // used to control the keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
             .padding(top = 16.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(CornerSize(12.dp)))
             .clip(RoundedCornerShape(CornerSize(12.dp)))
@@ -159,6 +165,8 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                 },
             )
             if (validFieldState) {
+                val sliderIntValue = sliderValueState.value.toInt()
+
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
@@ -167,7 +175,7 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(text = "Split")
-                    Spacer(modifier = Modifier.width(120.dp))
+                    Spacer(modifier = Modifier.width(180.dp))
                     RoundedIconButton(imageVector = Icons.Rounded.Remove, onClick = {
                         if (splitValue.value > 1) splitValue.value--
                     })
@@ -180,8 +188,45 @@ fun BillForm(onValueChanged: (String) -> Unit = {}) {
                         splitValue.value++
                     })
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
 
 
+                    Text(text = "Tip")
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "%.1f".format(
+                            calculateTipAmount(
+                                percentage = sliderIntValue,
+                                bill = totalBillValue.value.trim().toInt()
+                            ).toDouble()
+                        )
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                // Percentage Text
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                    text = "$sliderIntValue%"
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Percentage Slider
+                Slider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    value = sliderValueState.value,
+                    onValueChange = { sliderValueState.value = it },
+                    valueRange = 0f..100f,
+                    steps = 5,
+                )
             }
         }
     }
