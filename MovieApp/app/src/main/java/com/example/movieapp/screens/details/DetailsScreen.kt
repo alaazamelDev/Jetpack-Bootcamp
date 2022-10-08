@@ -10,12 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.movieapp.models.Movie
 
 @Composable
-fun DetailsScreen(navController: NavController, movieData: String?) {
+fun DetailsScreen(navController: NavController, movieID: Int?) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -39,7 +39,7 @@ fun DetailsScreen(navController: NavController, movieData: String?) {
         ) {
 
             Text(
-                text = movieData.toString(),
+                text = Movie.getMoviesList().first { it.id == movieID }.title,
                 style = MaterialTheme.typography.h4
             )
             Spacer(modifier = Modifier.height(24.dp))

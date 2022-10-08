@@ -16,6 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.movieapp.components.MovieCard
+import com.example.movieapp.models.Movie
 import com.example.movieapp.navigation.MovieScreens
 
 @Composable
@@ -29,62 +31,19 @@ fun HomeScreen(navController: NavController) {
 
 @Composable
 fun MainContent(
-    navController: NavController, moviesList: List<String> = listOf(
-        "The Pianist",
-        "Transporter",
-        "Life",
-        "Avatar",
-        "Red Sparrow",
-        "The Pianist",
-        "Transporter",
-        "Life",
-        "Avatar",
-        "Red Sparrow",
-    )
+    navController: NavController,
+    moviesList: List<Movie> = Movie.getMoviesList()
 ) {
     Column(modifier = Modifier.padding(12.dp)) {
         LazyColumn {
             items(items = moviesList) {
-                MovieCard(movie = it, onPressed = { item ->
-                    navController.navigate(route = MovieScreens.DETAILS_SCREEN.name + "/$item") {
-
+                MovieCard(movie = it) { item ->
+                    navController.navigate(route = MovieScreens.DETAILS_SCREEN.name + "/${item.id}") {
                     }
-                })
+                }
             }
         }
     }
-}
-
-@Composable
-fun MovieCard(movie: String, onPressed: (String) -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp)
-            .padding(4.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onPressed.invoke(movie) },
-        shape = RoundedCornerShape(CornerSize(16.dp)),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-
-            Surface(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(100.dp)
-                    .padding(8.dp),
-                elevation = 4.dp,
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "movie image"
-                )
-            }
-            Text(text = movie, style = MaterialTheme.typography.h4)
-        }
-    }
-
 }
 
 @Composable
