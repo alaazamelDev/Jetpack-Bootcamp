@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.noteapp.data.NotesDataSource
 import com.example.noteapp.screens.MainScreen
 
 @Composable
@@ -16,7 +17,7 @@ fun NotesNavigation() {
         composable(NoteRoutes.MAIN_SCREEN.name) {
 
             // Link route with MainScreen
-            MainScreen(navController = navController)
+            MainScreen(navController = navController, notes = NotesDataSource().loadNotes())
         }
     }
 
